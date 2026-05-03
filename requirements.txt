@@ -1,7 +1,15 @@
-pandas
 numpy
+pandas
 matplotlib
-statsmodels
 scipy
+scikit-learn
+statsmodels
+xgboost
+tensorflow
+prophet
+hyperopt
+mlflow
+streamlit
+joblib
 jupyter
 notebook
