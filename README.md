@@ -115,6 +115,8 @@ The champion model and supporting files are saved in the `models/` folder:
 
 The final Streamlit app is called **FreshMart Demand Planner** and is implemented in:
 
+Live app: [FreshMart Demand Planner](https://freshmart-demand-planner.streamlit.app)
+
 ```text
 app.py
 ```
