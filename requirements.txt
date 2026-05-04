@@ -1,15 +1,42 @@
+# ============================================================
+# FreshMart Demand Planner - Requirements
+# Time Series Forecasting Project
+#
+# Used for notebooks, model training, MLflow tracking,
+# and the deployed Streamlit application.
+# ============================================================
+
+# --- Core data and computation ---
 numpy
 pandas
-matplotlib
 scipy
+
+# --- Visualization ---
+matplotlib
+
+# --- Machine learning ---
 scikit-learn
-statsmodels
 xgboost
-tensorflow
+
+# --- Statistical and time series models ---
+statsmodels
 prophet
+
+# --- Deep learning ---
+tensorflow
+
+# --- Hyperparameter tuning ---
 hyperopt
+
+# --- Experiment tracking ---
 mlflow
-streamlit
+
+# --- Model persistence ---
 joblib
+
+# --- Streamlit app ---
+streamlit
+
+# --- Notebook environment ---
 jupyter
 notebook

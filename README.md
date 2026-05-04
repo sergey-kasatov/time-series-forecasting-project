@@ -1,5 +1,9 @@
 # Time Series Forecasting Project
 
+**Author:** Sergey Kasatov  
+**Live App:** [FreshMart Demand Planner](https://freshmart-demand-planner.streamlit.app)  
+**Repository:** [time-series-forecasting-project](https://github.com/sergey-kasatov/time-series-forecasting-project)
+
 ## Project Overview
 
 This project focuses on time series forecasting for daily unit sales of a selected store item.
@@ -149,6 +153,18 @@ The app displays:
 
 ---
 
+## How to Use the App
+
+1. Open the deployed FreshMart Demand Planner app.
+2. Select the cutoff date, which represents the last known sales date.
+3. Choose the forecast horizon and the number of recent historical days to display.
+4. Optionally enable historical actual sales for comparison.
+5. Click **Generate forecast**.
+6. Review the planning KPIs, forecast chart, forecast table, and planning interpretation.
+7. Download the forecast table as CSV if needed.
+
+---
+
 ## Repository Structure
 
 ```text
@@ -239,3 +255,11 @@ This app is a portfolio forecasting prototype.
 The current version simulates forecasts using prepared feature-engineered data from the historical test period. It does not generate forecasts beyond the available feature-engineered dataset.
 
 A production version would require a future feature generation pipeline for future dates, including calendar features, holiday features, oil price assumptions, and recursive lag/rolling features.
+
+---
+
+## Author
+
+**Sergey Kasatov**  
+Data Analytics / Data Science portfolio project  
+GitHub: [sergey-kasatov](https://github.com/sergey-kasatov)

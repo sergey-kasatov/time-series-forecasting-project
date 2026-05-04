@@ -11,3 +11,7 @@ mlruns/
 mlflow.db
 mlflow.db-journal
 mlflow.db-*
+
+# Exported reports and notebook renders
+reports/*
+!reports/.gitkeep
