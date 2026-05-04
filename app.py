@@ -546,7 +546,7 @@ else:
             st.markdown(
                 f"""
                 <div class="metric-card">
-                    <div class="metric-label">Forecast Demand Level</div>
+                    <div class="metric-label">Relative Demand Level</div>
                     <div class="metric-value">{demand_level}</div>
                 </div>
                 """,
@@ -702,7 +702,7 @@ else:
 
             For the selected horizon, the model predicts a total of approximately **{total_predicted_sales:,.0f} unit sales**.
 
-            The average expected daily sales level is approximately **{average_daily_forecast:,.0f} units**, which indicates a **{demand_level.lower()} demand level** for the selected period.
+            The average expected daily sales level is approximately **{average_daily_forecast:,.0f} units**, which indicates a **{demand_level.lower()} relative demand level** for the selected period.
 
             The highest predicted demand occurs on **{peak_forecast_date}**, with approximately **{peak_forecast_value:,.0f} predicted unit sales**.
 
