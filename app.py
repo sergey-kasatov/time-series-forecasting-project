@@ -87,7 +87,8 @@ div[data-testid="stButton"] > button {
     border: none;
     border-radius: 10px;
     font-weight: 700;
-    padding: 0.55rem 1rem;
+    padding: 0.65rem 1.2rem;
+    width: auto;
 }
 
 div[data-testid="stButton"] > button:hover {
@@ -107,6 +108,55 @@ div[data-testid="stButton"] > button:hover {
 
 .footer-card strong {
     color: #ffffff;
+}
+
+.forecast-table-container {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 0.5rem;
+    margin-bottom: 1.2rem;
+}
+
+.forecast-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #0e1117;
+    border: 1px solid #263238;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+.forecast-table th {
+    background-color: #1c2129;
+    color: #b7c7bd;
+    font-weight: 700;
+    text-align: center;
+    padding: 0.65rem;
+    border: 1px solid #263238;
+}
+
+.forecast-table td {
+    color: #ffffff;
+    text-align: center;
+    padding: 0.65rem;
+    border: 1px solid #263238;
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .forecast-table-container {
+        max-width: 100%;
+    }
+
+    .forecast-table {
+        font-size: 0.85rem;
+    }
+
+    .forecast-table th,
+    .forecast-table td {
+        padding: 0.5rem;
+    }
 }
 
 </style>
@@ -288,7 +338,7 @@ max_cutoff_date = (test_dates.max() - pd.Timedelta(days=7)).date()
 
 st.sidebar.markdown(
     f"""
-    **Available simulation period:**  
+    **Prepared data period:**  
     {test_dates.min().date()} to {test_dates.max().date()}
     """
 )
@@ -319,10 +369,14 @@ if max_available_horizon < 7:
 elif max_available_horizon == 7:
     selected_horizon = 7
     st.sidebar.info(
-        "Only 7 forecast days are available after this cutoff date."
+        "Selectable forecast horizon after cutoff: 7 days."
     )
 
 else:
+    st.sidebar.info(
+        f"Selectable forecast horizon after cutoff: 7 to {max_available_horizon} days."
+    )
+    
     selected_horizon = st.sidebar.slider(
         "Select forecast horizon in days",
         min_value=7,
@@ -347,10 +401,13 @@ show_actuals = st.sidebar.checkbox(
     key="show_actuals_checkbox"
 )
 
-run_forecast = st.sidebar.button(
-    "Generate forecast",
-    key="generate_forecast_button"
-)
+button_left, button_center, button_right = st.sidebar.columns([0.35, 1.3, 0.35])
+
+with button_center:
+    run_forecast = st.button(
+        "Generate forecast",
+        key="generate_forecast_button"
+    )
 
 
 st.sidebar.divider()
@@ -584,14 +641,13 @@ else:
 
         st.pyplot(fig_forecast)
 
-        st.markdown("#### Forecast Table")
+        st.markdown("### Forecast Table")
 
-        if show_actuals and "actual_unit_sales" in forecast_df.columns:
-            display_forecast_df = forecast_df.copy()
-        else:
-            display_forecast_df = forecast_df[
-                ["date", "predicted_unit_sales"]
-            ].copy()
+        display_forecast_df = forecast_df.copy()
+
+        display_forecast_df["date"] = pd.to_datetime(
+            display_forecast_df["date"]
+        ).dt.strftime("%Y-%m-%d")
 
         display_forecast_df["predicted_unit_sales"] = (
             display_forecast_df["predicted_unit_sales"]
@@ -599,16 +655,34 @@ else:
             .astype(int)
         )
 
-        if "actual_unit_sales" in display_forecast_df.columns:
+        if show_actuals and "actual_unit_sales" in display_forecast_df.columns:
             display_forecast_df["actual_unit_sales"] = (
                 display_forecast_df["actual_unit_sales"]
                 .round(0)
                 .astype(int)
+            )
+
+            display_forecast_df = display_forecast_df[
+                ["date", "actual_unit_sales", "predicted_unit_sales"]
+            ]
+        else:
+            display_forecast_df = display_forecast_df[
+                ["date", "predicted_unit_sales"]
+            ]
+
+        forecast_table_html = display_forecast_df.to_html(
+            index=False,
+            classes="forecast-table",
+            border=0
         )
 
-        st.dataframe(
-            display_forecast_df,
-            width="stretch"
+        st.markdown(
+            f"""
+            <div class="forecast-table-container">
+                {forecast_table_html}
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
         csv_data = display_forecast_df.to_csv(index=False).encode("utf-8")
