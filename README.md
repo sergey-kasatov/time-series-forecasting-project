@@ -113,19 +113,19 @@ The champion model and supporting files are saved in the `models/` folder:
 
 ## Streamlit App
 
-The final Streamlit app is implemented in:
+The final Streamlit app is called **FreshMart Demand Planner** and is implemented in:
 
 ```text
 app.py
 ```
 
-The app is designed as a sales forecast planning prototype for a small grocery store manager.
+FreshMart Demand Planner is designed as a short-term sales forecast planning prototype for a small grocery store manager.
 
 The user can:
 
 - select the last known sales date,
 - choose a forecast horizon,
-- choose how much recent history to display,
+- choose how many recent historical days to display before the cutoff date,
 - optionally show historical actual sales for comparison,
 - generate a forecast simulation,
 - review forecast planning KPIs,

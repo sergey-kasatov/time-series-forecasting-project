@@ -7,14 +7,110 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 
 # Page configuration
 st.set_page_config(
-    page_title="Sales Forecast Planning App",
-    page_icon="📈",
+    page_title="FreshMart Demand Planner",
+    page_icon="🛒",
     layout="wide"
 )
+
+st.markdown("""
+<style>
+.metric-card {
+    background-color: #161b22;
+    border: 1px solid #263238;
+    border-radius: 14px;
+    text-align: center;
+    padding: 0.85rem 0.4rem;
+    min-height: 105px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.metric-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #b7c7bd;
+    margin-bottom: 0.45rem;
+}
+
+.metric-value {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.use-case-card {
+    background-color: #123524;
+    border-left: 5px solid #2ecc71;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0 1.5rem 0;
+}
+
+.use-case-card h4 {
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    color: #ffffff;
+}
+
+.use-case-card p {
+    margin-bottom: 0;
+    color: #e8f5e9;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+            
+/* Sidebar polish */
+section[data-testid="stSidebar"] {
+    background-color: #1f242d;
+    border-right: 1px solid #2f3b35;
+}
+
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: #ffffff;
+}
+
+section[data-testid="stSidebar"] label {
+    color: #e8f5e9;
+    font-weight: 600;
+}
+
+/* Primary button styling */
+div[data-testid="stButton"] > button {
+    background-color: #2ecc71;
+    color: #0b1117;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 0.55rem 1rem;
+}
+
+div[data-testid="stButton"] > button:hover {
+    background-color: #27ae60;
+    color: #ffffff;
+    border: none;
+}
+
+.footer-card {
+    margin-top: 2rem;
+    padding: 1rem 1.2rem;
+    border-top: 1px solid #263238;
+    color: #b7c7bd;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.footer-card strong {
+    color: #ffffff;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 
 # Project paths
@@ -127,6 +223,32 @@ def calculate_metrics(actual_values, predicted_values):
     return mae, rmse, mape, r2
 
 
+def calculate_demand_level(selected_average_forecast, reference_predictions, horizon):
+    """
+    Classify demand level by comparing the selected period average forecast
+    with rolling average forecasts of the same horizon.
+    """
+    rolling_averages = (
+        reference_predictions["predicted_unit_sales"]
+        .rolling(window=horizon)
+        .mean()
+        .dropna()
+    )
+
+    if rolling_averages.empty:
+        return "Medium"
+
+    low_threshold = rolling_averages.quantile(0.33)
+    high_threshold = rolling_averages.quantile(0.66)
+
+    if selected_average_forecast >= high_threshold:
+        return "High"
+    elif selected_average_forecast >= low_threshold:
+        return "Medium"
+    else:
+        return "Low"    
+
+
 # Prepare test-period data for validation and simulation
 TEST_START = champion_metadata["test_period"]["start"]
 TEST_END = champion_metadata["test_period"]["end"]
@@ -235,15 +357,29 @@ st.sidebar.divider()
 
 
 # App title and introduction
-st.title("Sales Forecast Planning App")
+st.title("FreshMart Demand Planner")
 
 st.markdown(
     """
-    This app demonstrates a sales forecasting prototype based on the selected champion model.
-
-    Use the sidebar controls to simulate expected unit sales for the next available days after a selected cutoff date.
+    An interactive forecasting prototype for short-term grocery sales planning.
     """
 )
+
+st.markdown(
+    """
+    <div class="use-case-card">
+        <h4>Business Use Case</h4>
+        <p>
+            FreshMart Demand Planner is designed for a small grocery store manager who needs to plan
+            short-term sales demand. The forecast helps estimate expected sales, identify high-demand
+            days, and support inventory, shelf replenishment, and staffing decisions.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
 
 # Forecast simulation section
 st.subheader("Forecast Simulation")
@@ -297,39 +433,70 @@ else:
         peak_forecast_date = pd.to_datetime(peak_forecast_row["date"]).date()
         peak_forecast_value = peak_forecast_row["predicted_unit_sales"]
 
-        if average_daily_forecast >= 600:
-            demand_level = "High"
-        elif average_daily_forecast >= 400:
-            demand_level = "Medium"
-        else:
-            demand_level = "Low"
+        demand_level = calculate_demand_level(
+            selected_average_forecast=average_daily_forecast,
+            reference_predictions=test_prediction_df,
+            horizon=len(forecast_df)
+        )
 
         kpi_1, kpi_2, kpi_3, kpi_4, kpi_5 = st.columns(5)
 
-        kpi_1.metric(
-            "Total Forecasted Sales",
-            f"{total_predicted_sales:,.0f}"
-        )
+        with kpi_1:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Total Forecasted Sales</div>
+                    <div class="metric-value">{total_predicted_sales:,.0f}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        kpi_2.metric(
-            "Average Daily Forecast",
-            f"{average_daily_forecast:,.0f}"
-        )
+        with kpi_2:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Average Daily Forecast</div>
+                    <div class="metric-value">{average_daily_forecast:,.0f}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        kpi_3.metric(
-            "Peak Forecast Day",
-            str(peak_forecast_date)
-        )
+        with kpi_3:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Peak Forecast Day</div>
+                    <div class="metric-value">{peak_forecast_date}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        kpi_4.metric(
-            "Peak Forecasted Sales",
-            f"{peak_forecast_value:,.0f}"
-        )
+        with kpi_4:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Peak Forecasted Sales</div>
+                    <div class="metric-value">{peak_forecast_value:,.0f}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        kpi_5.metric(
-            "Forecast Demand Level",
-            demand_level
-        )
+        with kpi_5:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Forecast Demand Level</div>
+                    <div class="metric-value">{demand_level}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("<div style='margin-bottom: 0.8rem;'></div>", unsafe_allow_html=True)
 
         fig_forecast, ax_forecast = plt.subplots(figsize=(14, 5))
 
@@ -343,18 +510,27 @@ else:
 
             ax_forecast.axvline(
                 selected_cutoff_date,
+                color="#8e44ad",
                 linestyle=":",
                 linewidth=2,
                 label="Cutoff Date"
             )
 
-        ax_forecast.plot(
-            forecast_df["date"],
-            forecast_df["predicted_unit_sales"],
-            label="Predicted Sales After Cutoff",
-            linewidth=2,
-            linestyle="--"
-        )
+            ax_forecast.axvline(
+                forecast_start_date,
+                color="#c0392b",
+                linestyle=":",
+                linewidth=2,
+                label="Forecast Start"
+            )
+
+            ax_forecast.plot(
+                forecast_df["date"],
+                forecast_df["predicted_unit_sales"],
+                label="Predicted Sales After Cutoff",
+                linewidth=2,
+                linestyle="--"
+            )
 
         if show_actuals and "actual_unit_sales" in forecast_df.columns:
             ax_forecast.plot(
@@ -370,6 +546,41 @@ else:
         ax_forecast.set_ylabel("Unit Sales")
         ax_forecast.legend()
         ax_forecast.grid(True, alpha=0.3)
+
+        # Format x-axis dates dynamically
+        plot_start_date = history_context_df["date"].min()
+        plot_end_date = forecast_df["date"].max()
+
+        total_days_on_plot = len(
+            pd.date_range(
+                start=plot_start_date,
+                end=plot_end_date,
+                freq="D"
+            )
+        )
+
+        if total_days_on_plot <= 15:
+            tick_interval = 1
+        elif total_days_on_plot <= 30:
+            tick_interval = 2
+        else:
+            tick_interval = 3
+
+        ax_forecast.xaxis.set_major_locator(
+            mdates.DayLocator(interval=tick_interval)
+        )
+
+        ax_forecast.xaxis.set_major_formatter(
+            mdates.DateFormatter("%Y-%m-%d")
+        )
+
+        plt.setp(
+            ax_forecast.get_xticklabels(),
+            rotation=45,
+            ha="right"
+        )
+
+        plt.tight_layout()
 
         st.pyplot(fig_forecast)
 
@@ -502,4 +713,17 @@ st.info(
     """
     Note: This app is a portfolio forecasting prototype. It simulates forecasts using prepared feature-engineered data from the historical test period. It is not a production demand planning system and does not generate forecasts beyond the available feature-engineered dataset.
     """
+)
+
+
+st.markdown(
+    """
+    <div class="footer-card">
+        <strong>FreshMart Demand Planner</strong><br>
+        Prototype purpose: short-term grocery sales planning<br>
+        Model: HyperOpt-tuned Random Forest<br>
+        Built by Sergey Kasatov as part of the Time Series Forecasting project
+    </div>
+    """,
+    unsafe_allow_html=True
 )
