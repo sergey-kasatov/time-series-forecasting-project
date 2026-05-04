@@ -6,7 +6,7 @@ This project focuses on time series forecasting for daily unit sales of a select
 
 The dataset is based on a simplified version of the Corporación Favorita Grocery Sales Forecasting data. The goal of the project is to analyze sales patterns, build and compare multiple forecasting models, select the best-performing champion model, and turn it into an interactive Streamlit application.
 
-The final app is designed as a sales forecast planning prototype for a small grocery store manager. It helps simulate expected sales for a selected planning horizon and supports short-term inventory and staffing decisions.
+The final app, **FreshMart Demand Planner**, is designed as a short-term sales forecast planning prototype for a small grocery store manager.
 
 ---
 
