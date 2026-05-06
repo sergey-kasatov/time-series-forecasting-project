@@ -829,26 +829,46 @@ with st.expander("Show champion model details"):
 
     model_summary = {
         "Champion Model": champion_metadata["champion_model_name"],
-        "Main Metric": champion_metadata["main_metric"],
+        "Selection Metric": champion_metadata["main_metric"],
         "Champion RMSE": f"{champion_metadata['champion_rmse']:.2f}",
-        "Train Period": f"{champion_metadata['train_period']['start']} to {champion_metadata['train_period']['end']}",
-        "Test Period": f"{champion_metadata['test_period']['start']} to {champion_metadata['test_period']['end']}",
-        "Feature Count": champion_metadata["feature_count"],
-        "Model File": champion_metadata["model_file"]
+        "Training Period": (
+            f"{champion_metadata['train_period']['start']} "
+            f"to {champion_metadata['train_period']['end']}"
+        ),
+        "Test Period": (
+            f"{champion_metadata['test_period']['start']} "
+            f"to {champion_metadata['test_period']['end']}"
+        ),
+        "Number of Features": champion_metadata["feature_count"],
+        "Saved Model File": champion_metadata["model_file"]
     }
 
     model_summary_df = pd.DataFrame(
         model_summary.items(),
-        columns=["Item", "Value"]
+        columns=["Model Detail", "Value"]
     )
 
-    model_summary_df["Value"] = model_summary_df["Value"].astype(str)
-
-    st.dataframe(
-        model_summary_df,
-        width="stretch"
+    model_summary_html = model_summary_df.to_html(
+        index=False,
+        classes="forecast-table",
+        border=0
     )
 
+    st.markdown(
+        f"""
+        <div class="forecast-table-container" style="max-width: 900px;">
+            {model_summary_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        """
+        This section provides technical information about the selected champion model.
+        The model was selected based on the lowest RMSE in the final model comparison.
+        """
+    )
 
 # Business note
 st.info(
