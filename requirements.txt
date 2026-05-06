@@ -3,7 +3,7 @@
 # Time Series Forecasting Project
 #
 # Used for notebooks, model training, MLflow tracking,
-# and the deployed Streamlit application.
+# exported reports, and the deployed Streamlit application.
 # ============================================================
 
 # --- Core data and computation ---
@@ -37,6 +37,9 @@ joblib
 # --- Streamlit app ---
 streamlit
 
-# --- Notebook environment ---
+# --- Notebook environment and export ---
 jupyter
 notebook
+nbconvert
+markdown
+pygments
