@@ -777,9 +777,49 @@ with st.expander("Show model validation on the historical test period"):
 
     st.pyplot(fig_validation)
 
-    st.dataframe(
-        test_prediction_df,
-        width="stretch"
+    # Prepare compact validation table for display
+
+    validation_display_df = test_prediction_df.copy()
+
+    validation_display_df["date"] = pd.to_datetime(
+        validation_display_df["date"]
+    ).dt.strftime("%Y-%m-%d")
+
+    validation_display_df["actual_unit_sales"] = (
+        validation_display_df["actual_unit_sales"]
+        .round(0)
+        .astype(int)
+    )
+
+    validation_display_df["predicted_unit_sales"] = (
+        validation_display_df["predicted_unit_sales"]
+        .round(0)
+        .astype(int)
+    )
+
+    validation_display_df = validation_display_df.rename(
+        columns={
+            "date": "Date",
+            "actual_unit_sales": "Actual Sales",
+            "predicted_unit_sales": "Predicted Sales"
+        }
+    )
+
+    st.caption("Showing the first 15 rows of the historical validation period.")
+
+    validation_table_html = validation_display_df.head(15).to_html(
+        index=False,
+        classes="forecast-table",
+        border=0
+    )
+
+    st.markdown(
+        f"""
+        <div class="forecast-table-container">
+            {validation_table_html}
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
