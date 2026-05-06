@@ -224,6 +224,16 @@ def generate_predictions(input_df, model, feature_cols):
     """
     Generate predictions using a trained model and a saved feature column list.
     """
+    required_base_cols = ["date"]
+
+    missing_base_cols = [
+        col for col in required_base_cols
+        if col not in input_df.columns
+    ]
+
+    if missing_base_cols:
+        raise ValueError(f"Missing required base columns: {missing_base_cols}")
+
     missing_cols = [
         col for col in feature_cols
         if col not in input_df.columns
@@ -255,20 +265,36 @@ def calculate_metrics(actual_values, predicted_values):
     """
     Calculate standard regression metrics.
     """
+    actual_values = np.asarray(actual_values)
+    predicted_values = np.asarray(predicted_values)
+
     mae = np.mean(np.abs(actual_values - predicted_values))
 
     rmse = np.sqrt(
         np.mean((actual_values - predicted_values) ** 2)
     )
 
-    mape = np.mean(
-        np.abs((actual_values - predicted_values) / actual_values)
-    ) * 100
+    non_zero_mask = actual_values != 0
 
-    r2 = 1 - (
-        np.sum((actual_values - predicted_values) ** 2)
-        / np.sum((actual_values - actual_values.mean()) ** 2)
-    )
+    if non_zero_mask.sum() == 0:
+        mape = np.nan
+    else:
+        mape = np.mean(
+            np.abs(
+                (actual_values[non_zero_mask] - predicted_values[non_zero_mask])
+                / actual_values[non_zero_mask]
+            )
+        ) * 100
+
+    denominator = np.sum((actual_values - actual_values.mean()) ** 2)
+
+    if denominator == 0:
+        r2 = np.nan
+    else:
+        r2 = 1 - (
+            np.sum((actual_values - predicted_values) ** 2)
+            / denominator
+        )
 
     return mae, rmse, mape, r2
 
@@ -741,7 +767,9 @@ with st.expander("Show model validation on the historical test period"):
         linestyle="--"
     )
 
-    ax_validation.set_title("Champion Model — Actual vs Predicted Unit Sales")
+    ax_validation.set_title(
+        f"{champion_metadata['champion_model_name']} — Actual vs Predicted Unit Sales"
+    )
     ax_validation.set_xlabel("Date")
     ax_validation.set_ylabel("Unit Sales")
     ax_validation.legend()
@@ -762,7 +790,7 @@ with st.expander("Show champion model details"):
     model_summary = {
         "Champion Model": champion_metadata["champion_model_name"],
         "Main Metric": champion_metadata["main_metric"],
-        "Champion RMSE": champion_metadata["champion_rmse"],
+        "Champion RMSE": f"{champion_metadata['champion_rmse']:.2f}",
         "Train Period": f"{champion_metadata['train_period']['start']} to {champion_metadata['train_period']['end']}",
         "Test Period": f"{champion_metadata['test_period']['start']} to {champion_metadata['test_period']['end']}",
         "Feature Count": champion_metadata["feature_count"],
@@ -785,17 +813,17 @@ with st.expander("Show champion model details"):
 # Business note
 st.info(
     """
-    Note: This app is a portfolio forecasting prototype. It simulates forecasts using prepared feature-engineered data from the historical test period. It is not a production demand planning system and does not generate forecasts beyond the available feature-engineered dataset.
+    Note: This app is a portfolio forecasting prototype. It simulates short-term forecasts using prepared feature-engineered rows from the historical test period. It is not a production demand planning system and does not generate forecasts beyond the available feature-engineered dataset.
     """
 )
 
 
 st.markdown(
-    """
+    f"""
     <div class="footer-card">
         <strong>FreshMart Demand Planner</strong><br>
         Prototype purpose: short-term grocery sales planning<br>
-        Model: HyperOpt-tuned Random Forest<br>
+        Model: {champion_metadata["champion_model_name"]}<br>
         Built by Sergey Kasatov as part of the Time Series Forecasting project
     </div>
     """,
