@@ -248,13 +248,19 @@ The final app translates the model output into planning-oriented business inform
 
 ---
 
-## Limitations
+## Limitations and Future Improvements
 
 This app is a portfolio forecasting prototype.
+The current version simulates short-term forecasts using prepared feature-engineered rows from the historical test period. It does not generate forecasts beyond the available feature-engineered dataset.
+This limitation exists because the champion model depends on lag features, rolling statistics, oil price features, and holiday indicators. For real future dates, these inputs would need to be generated separately before the model can produce reliable forecasts.
 
-The current version simulates forecasts using prepared feature-engineered data from the historical test period. It does not generate forecasts beyond the available feature-engineered dataset.
+A production version would require a future feature generation pipeline, including calendar features, holiday features, oil price assumptions, and recursive lag/rolling features. In a recursive forecasting setup, predictions for earlier future days could be used to create lag and rolling features for later future days.
 
-A production version would require a future feature generation pipeline for future dates, including calendar features, holiday features, oil price assumptions, and recursive lag/rolling features.
+Future improvements could include:
+- recursive future forecasting beyond the prepared dataset
+- uncertainty intervals for longer forecast horizons
+- automated updates with new sales data
+- deployment on Streamlit Community Cloud
 
 ---
 
