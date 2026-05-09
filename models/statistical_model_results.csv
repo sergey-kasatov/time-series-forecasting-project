@@ -1,6 +1,6 @@
 Model,Model Type,MAE,RMSE,MAPE,R2,Training Time Seconds
-Prophet Basic,Statistical Benchmark,94.48,142.52,20.8,0.3963,0.1826
-Prophet Advanced,Statistical Benchmark,94.92,143.26,20.78,0.39,0.1916
-SARIMAX + exogenous features,Statistical Benchmark,96.57,144.43,21.54,0.38,1.1801
-Holt-Winters Additive,Statistical Benchmark,113.72,153.7,27.37,0.2978,0.0071
-Holt-Winters Multiplicative,Statistical Benchmark,124.6,161.97,30.79,0.2203,0.0055
+Prophet Basic,Statistical Benchmark,94.48,142.52,20.8,0.3963,1.1153
+Prophet Advanced,Statistical Benchmark,94.92,143.26,20.78,0.39,0.1677
+SARIMAX + exogenous features,Statistical Benchmark,96.57,144.43,21.54,0.38,1.0502
+Holt-Winters Additive,Statistical Benchmark,113.72,153.7,27.37,0.2978,0.007
+Holt-Winters Multiplicative,Statistical Benchmark,124.6,161.97,30.79,0.2203,0.0045
