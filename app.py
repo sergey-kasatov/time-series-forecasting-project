@@ -624,7 +624,7 @@ else:
                 alpha=0.6
         )
 
-        ax_forecast.set_title("Forecast Simulation — Recent History and Forecast Horizon")
+        ax_forecast.set_title("Forecast Simulation - Recent History and Forecast Horizon")
         ax_forecast.set_xlabel("Date")
         ax_forecast.set_ylabel("Unit Sales")
         ax_forecast.legend()
@@ -768,7 +768,7 @@ with st.expander("Show model validation on the historical test period"):
     )
 
     ax_validation.set_title(
-        f"{champion_metadata['champion_model_name']} — Actual vs Predicted Unit Sales"
+        f"{champion_metadata['champion_model_name']} - Actual vs Predicted Unit Sales"
     )
     ax_validation.set_xlabel("Date")
     ax_validation.set_ylabel("Unit Sales")
